@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manufacturing Workflow Checklist</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .phase {
+            display: none;
+        }
+        .phase.active {
+            display: block;
+        }
+        /* Custom checkbox style */
+        .custom-checkbox:checked + label:before {
+            background-color: #34D399; /* emerald-400 */
+            border-color: #34D399;
+        }
+        .custom-checkbox:checked + label:after {
+            content: '\2713';
+            position: absolute;
+            left: 4px;
+            top: 0px;
+            color: white;
+            font-size: 14px;
+        }
+        label:before {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            position: relative;
+            left: 0;
+            bottom: -5px;
+            background-color: #F3F4F6; /* gray-100 */
+            border: 1px solid #D1D5DB; /* gray-300 */
+            border-radius: 4px;
+        }
+        input[type="checkbox"] {
+            display: none;
+        }
+        .checklist-item {
+            transition: color 0.2s ease-in-out;
+        }
+        .checklist-item.completed label {
+            text-decoration: line-through;
+            color: #6B7280; /* gray-500 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-3xl bg-white rounded-xl shadow-lg p-6 md:p-8">
+
+        <!-- Start Screen -->
+        <div id="start-screen">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 text-center">New Build Order</h1>
+            <p class="text-center text-gray-500 mb-6">Enter the build details to begin.</p>
+            <div class="space-y-4">
+                <div>
+                    <label for="employee-name" class="block text-sm font-medium text-gray-700">Employee Name</label>
+                    <input type="text" id="employee-name" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="e.g., Jane Doe">
+                </div>
+                <div>
+                    <label for="product-name" class="block text-sm font-medium text-gray-700">Product Name</label>
+                    <input type="text" id="product-name" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" value="The Gamer" placeholder="e.g., The Gamer">
+                </div>
+                <div>
+                    <label for="order-id" class="block text-sm font-medium text-gray-700">Order ID</label>
+                    <input type="text" id="order-id" readonly class="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm sm:text-sm">
+                </div>
+            </div>
+            <button onclick="startBuild()" id="btn-start-build" class="mt-6 w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors">Start Build</button>
+        </div>
+
+        <!-- Main Checklist Content -->
+        <div id="main-content" class="hidden">
+            <div class="text-center mb-4 border-b pb-4">
+                 <h1 id="checklist-title" class="text-2xl md:text-3xl font-bold text-gray-800"></h1>
+                 <div class="flex justify-center items-center space-x-4 text-sm text-gray-500 mt-2">
+                    <span id="checklist-order-id"></span>
+                    <span>|</span>
+                    <span id="checklist-employee-name"></span>
+                 </div>
+            </div>
+           
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6">
+                <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%; transition: width 0.5s ease-in-out;"></div>
+            </div>
+
+            <!-- Phases Container -->
+            <div id="phases-container">
+                <!-- Phase 1: Preparation -->
+                <div id="phase-1" class="phase">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Phase 1: Preparation & Component Verification</h2>
+                    <div class="space-y-3">
+                        <div class="checklist-item"><input type="checkbox" id="task1-1" class="custom-checkbox"><label for="task1-1">Unbox and inspect chassis for damage.</label></div>
+                        <div class="checklist-item"><input type="checkbox" id="task1-2" class="custom-checkbox"><label for="task1-2">Verify pre-installed components (CPU, GPU, Display).</label></div>
+                        <div class="checklist-item"><input type="checkbox" id="task1-3" class="custom-checkbox"><label for="task1-3">Verify RAM kit (16GB DDR5).</label></div>
+                        <div class="checklist-item"><input type="checkbox" id="task1-4" class="custom-checkbox"><label for="task1-4">Verify NVMe SSD (1TB PCIe 4.0).</label></div>
+                        <div class="checklist-item"><input type="checkbox" id="task1-5" class="custom-checkbox"><label for="task1-5">Verify Wi-Fi card (Intel AX210).</label></div>
+                        <div class="checklist-item"><input type="checkbox" id="task1-6" class="custom-checkbox"><label for="task1-6">Verify Power Adapter.</label></div>
+                    </div>
+                    <button onclick="nextPhase(1)" id="btn-phase-1" class="mt-6 w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">Next Phase</button>
+                </div>
+
+                <!-- Phase 2: Assembly -->
+                <div id="phase-2" class="phase">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Phase 2: Assembly</h2>
+                    <div class="space-y-3">
+                        <div class="checklist-item"><input type="checkbox" id="task2-1" class="custom-checkbox"><label for="task2-1">Connect anti-static wrist strap.</label></div>
+                        <div class="checklist-item"><input type="checkbox" id="task2-2" class="custom-checkbox"><label for="task2-2">Install both RAM modules correctly.</label></div>
+                        <div class="checklist-item"><input type="checkbox" id="task2-3" class="custom-checkbox"><label for="task2-3">Install Wi-Fi card and connect antennas.</label></div>
+                        <div class="checklist-item"><input type="checkbox" id="task2-4" class="custom-checkbox"><label for="task2-4">Install NVMe SSD and secure it.</label></div>
+                        <div class="checklist-item"><input type="checkbox" id="task2-5" class="custom-checkbox"><label for="task2-5">Perform final internal check (no pinched wires).</label></div>
+                        <div class="checklist-item"><input type="checkbox" id="task2-6" class="custom-checkbox"><label for="task2-6">Replace and secure bottom panel.</label></div>
+                    </div>
+                    <button onclick="nextPhase(2)" id="btn-phase-2" class="mt-6 w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">Next Phase</button>
+                </div>
+
+                <!-- Phase 3: Software -->
+                <div id="phase-3" class="phase">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Phase 3: Software Installation & Configuration</h2>
+                    <div class="space-y-3">
+                        <div class="checklist-item"><input type="checkbox" id="task3-1" class="custom-checkbox"><label for="task3-1">Enter BIOS/UEFI and verify all components are detected.</label></div>
+                        <div class="checklist-item"><input type="checkbox" id="task3-2" class="custom-checkbox"><label for="task3-2">Install Windows 11 successfully.</label></div>
+                        <div class="checklist-item"><input type="checkbox" id="task3-3" class="custom-checkbox"><label for="task3-3">Install all drivers in the correct order (Chipset first).</label></div>
+                        <div class="checklist-item"><input type="checkbox" id="task3-4" class="custom-checkbox"><label for="task3-4">Install Control Center/Utility Software.</label></div>
+                        <div class="checklist-item"><input type="checkbox" id="task3-5" class="custom-checkbox"><label for="task3-5">Run all Windows Updates.</label></div>
+                        <div class="checklist-item"><input type="checkbox" id="task3-6" class="custom-checkbox"><label for="task3-6">Activate Windows.</label></div>
+                    </div>
+                    <button onclick="nextPhase(3)" id="btn-phase-3" class="mt-6 w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">Next Phase</button>
+                </div>
+
+                <!-- Phase 4: QA -->
+                <div id="phase-4" class="phase">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Phase 4: Quality Assurance & Stress Testing</h2>
+                    <div class="space-y-3">
+                        <div class="checklist-item"><input type="checkbox" id="task4-1" class="custom-checkbox"><label for="task4-1">Pass 15-min CPU stress test (Cinebench R23).</label></div>
+                        <div class="checklist-item"><input type="checkbox" id="task4-2" class="custom-checkbox"><label for="task4-2">Pass 15-min GPU stress test (3DMark Time Spy).</label></div>
+                        <div class="checklist-item"><input type="checkbox" id="task4-3" class="custom-checkbox"><label for="task4-3">Pass 1-hour full system stability test (AIDA64).</label></div>
+                        <div class="checklist-item"><input type="checkbox" id="task4-4" class="custom-checkbox"><label for="task4-4">Complete physical component checklist (Keyboard, Ports, etc.).</label></div>
+                        <div class="checklist-item"><input type="checkbox" id="task4-5" class="custom-checkbox"><label for="task4-5">Verify SSD speed (CrystalDiskMark).</label></div>
+                        <div class="checklist-item"><input type="checkbox" id="task4-6" class="custom-checkbox"><label for="task4-6">Check display for dead pixels.</label></div>
+                    </div>
+                    <button onclick="nextPhase(4)" id="btn-phase-4" class="mt-6 w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">Next Phase</button>
+                </div>
+
+                <!-- Phase 5: Packaging -->
+                <div id="phase-5" class="phase">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Phase 5: Final Packaging & Shipping</h2>
+                    <div class="space-y-3">
+                        <div class="checklist-item"><input type="checkbox" id="task5-1" class="custom-checkbox"><label for="task5-1">Wipe down screen and chassis (remove fingerprints).</label></div>
+                        <div class="checklist-item"><input type="checkbox" id="task5-2" class="custom-checkbox"><label for="task5-2">Place laptop in protective sleeve.</label></div>
+                        <div class="checklist-item"><input type="checkbox" id="task5-3" class="custom-checkbox"><label for="task5-3">Package laptop, power adapter, and accessories in box.</label></div>
+                        <div class="checklist-item"><input type="checkbox" id="task5-4" class="custom-checkbox"><label for="task5-4">Include "Thank You" card.</label></div>
+                        <div class="checklist-item"><input type="checkbox" id="task5-5" class="custom-checkbox"><label for="task5-5">Seal product box and place in shipping box.</label></div>
+                    </div>
+                    <button onclick="nextPhase(5)" id="btn-phase-5" class="mt-6 w-full bg-emerald-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-emerald-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">Complete Build</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <div id="success-message" class="hidden text-center">
+            <svg class="mx-auto h-16 w-16 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h2 class="mt-4 text-2xl font-bold text-gray-800">Build Complete!</h2>
+            <p id="success-details" class="text-gray-600 mt-2"></p>
+            <button onclick="resetWorkflow()" class="mt-6 bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors">Start New Build</button>
+        </div>
+    </div>
+
+    <script>
+        const totalPhases = 5;
+        let employeeName, orderId, productName;
+
+        function generateOrderId() {
+            return `ORD-${Date.now()}`;
+        }
+
+        function startBuild() {
+            employeeName = document.getElementById('employee-name').value;
+            productName = document.getElementById('product-name').value;
+            orderId = document.getElementById('order-id').value;
+
+            if (!employeeName.trim() || !productName.trim()) {
+                alert('Please enter both Employee Name and Product Name.');
+                return;
+            }
+
+            // Update checklist headers
+            document.getElementById('checklist-title').textContent = `Manufacturing Checklist: "${productName}"`;
+            document.getElementById('checklist-order-id').textContent = `Order ID: ${orderId}`;
+            document.getElementById('checklist-employee-name').textContent = `Employee: ${employeeName}`;
+
+            // Update success message details
+            document.getElementById('success-details').textContent = `Order ${orderId} (${productName}) completed by ${employeeName}.`;
+
+            // Switch views
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+            document.getElementById('phase-1').classList.add('active');
+            updateProgressBar();
+        }
+
+        function checkPhaseCompletion(phaseNumber) {
+            const phase = document.getElementById(`phase-${phaseNumber}`);
+            const checkboxes = phase.querySelectorAll('input[type="checkbox"]');
+            const nextButton = document.getElementById(`btn-phase-${phaseNumber}`);
+            const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+            nextButton.disabled = !allChecked;
+        }
+
+        function nextPhase(currentPhaseNumber) {
+            document.getElementById(`phase-${currentPhaseNumber}`).classList.remove('active');
+
+            if (currentPhaseNumber < totalPhases) {
+                const nextPhaseNumber = currentPhaseNumber + 1;
+                document.getElementById(`phase-${nextPhaseNumber}`).classList.add('active');
+            } else {
+                document.getElementById('main-content').classList.add('hidden');
+                document.getElementById('success-message').classList.remove('hidden');
+            }
+            updateProgressBar();
+        }
+
+        function updateProgressBar() {
+            let completedPhases = 0;
+            for(let i = 1; i <= totalPhases; i++){
+                const phase = document.getElementById(`phase-${i}`);
+                if (phase && !phase.classList.contains('active')) {
+                    completedPhases++;
+                }
+            }
+            
+            if(!document.getElementById('success-message').classList.contains('hidden')) {
+                completedPhases = totalPhases;
+            }
+
+            const progress = (completedPhases / totalPhases) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+        
+        function resetWorkflow() {
+            document.getElementById('success-message').classList.add('hidden');
+            document.getElementById('main-content').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+
+            document.getElementById('employee-name').value = '';
+            document.getElementById('product-name').value = 'The Gamer';
+            document.getElementById('order-id').value = generateOrderId();
+
+            const allCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+            allCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+                checkbox.parentElement.classList.remove('completed');
+            });
+
+            const allPhases = document.querySelectorAll('.phase');
+            allPhases.forEach((phase) => {
+                phase.classList.remove('active');
+            });
+            
+            for (let i = 1; i <= totalPhases; i++) {
+                checkPhaseCompletion(i);
+            }
+            updateProgressBar();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', (event) => {
+                    const phaseDiv = event.target.closest('.phase');
+                    const phaseNumber = parseInt(phaseDiv.id.split('-')[1]);
+                    checkPhaseCompletion(phaseNumber);
+
+                    if (event.target.checked) {
+                        event.target.parentElement.classList.add('completed');
+                    } else {
+                        event.target.parentElement.classList.remove('completed');
+                    }
+                });
+            });
+
+            resetWorkflow(); // Initialize the form
+        });
+    </script>
+</body>
+</html>
